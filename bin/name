@@ -1,0 +1,38 @@
+#!/usr/bin/env bun
+
+import LanguageManager, { capitalize, pick } from '../src/Language';
+import { parseArgs } from "util";
+
+const { values, positionals } = parseArgs({
+  args: Bun.argv,
+  options: {
+    translate: {
+      type: "boolean",
+      default: true
+    },
+    lang: {
+      type: "string",
+    },
+    count: {
+      type: "string",
+    }
+  },
+  strict: false,
+  allowPositionals: true,
+});
+
+const language = LanguageManager.instance;
+
+// template from argument
+const template = positionals[2];
+language.loadLanguages();
+
+for (let i = 0; i < (parseInt(values.count) || 1); i++) {
+  const langKey = values.lang || pick(language.availableLanguageKeys)
+  const tx = language.getConceptory(langKey).names(template)
+  if (values.translate) {
+    console.log(tx.translation + ", which is " + capitalize(tx.concepts.join('')) + " in " + capitalize(langKey) + ".")
+  } else {
+    console.log(tx.translation);
+  }
+}
