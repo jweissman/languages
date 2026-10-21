@@ -56,9 +56,11 @@ const concepts = [
   'mist', 'snow', 'wind', 'rain', 'cloud', //'hail',
   'rainbow', 'dew', 'frost',
   // metals...
-  'tin', 'iron', 'silver', 'gold',
+  'tin', 'iron', 'silver', 'gold', 'copper',
   // materials
-  'stone', 'wood', 'pearl', 'shell',
+  'stone', 'wood', 'pearl', 'shell', 'glass',
+  // types of stone
+  'flint', 'marble', 'basalt',
   // 'bone',
   // weapons
   // 'axe', 'sword', 'bow', 'shield',
@@ -87,6 +89,8 @@ const concepts = [
   // quasi-elements...
   'embers', 'steam', 'magma', 'radiance',
   'soot', 'ash', 'salt', 'void', 'smoke',
+
+  // 
 
   // ...times of day
   'morning', 'evening', 'dusk', 'noon', 'afternoon', 'midnight',
@@ -187,10 +191,11 @@ const concepts = [
   'hollow', 'damp',
   'ember',
 
-
   'any',
 
   'spray',
+
+  'metal'
 
 
 ] as const;
@@ -204,13 +209,13 @@ export type TerrainKind = typeof terrainKinds[number];
 
 export const conceptKinds = [
   "color", "animal", "element", "nature", "place", "object", "abstract", "modifier", "adjective", "timeOfDay", "bodyPart", "animalPart", "tree", "season", "mood", "food", "architecture", "instrument",
-  "town",
+  "town", "flower", "metal", "rock", "material",
   ...terrainKinds
 ] as const;
 
 export type ConceptKind = typeof conceptKinds[number];
 
-export type ConceptTemplate = 'personalName' | 'nobleHouse' | 'townName';
+export type ConceptTemplate = 'personalName' | 'nobleHouse' | 'townName' | 'mountainName';
 
 export class Conceptory {
   static conceptKinds: { [key in ConceptKind]: Concept[] } = {
@@ -220,6 +225,9 @@ export class Conceptory {
     ],
     animal: ['dragons', 'elephants', 'bears', 'birds', 'horses', 'snakes', 'wolves', 'hounds', 'swans', 'eagles', 'nightingales', 'swallows', 'moles'],
     element: ['ice', 'fire', 'earth', 'water', 'embers', 'steam', 'magma', 'radiance', 'soot', 'ash', 'salt', 'void', 'smoke'],
+    metal: ['iron', 'gold', 'silver', 'copper', 'tin'],
+    rock: ['flint', 'marble', 'basalt'],
+    material: ['stone', 'wood', 'pearl', 'shell', 'glass','metal'],
     nature: ['forest', 'grove', 'glade', 'cave', 'marsh', 'swamp', 'fen', 'gyre', 'desert', 'river', 'glen', 'stream', 'mere', 'mountain', 'hill', 'valley', 'peak', 'mound', 'point', 'mountain-chain', 'crest', 'fall', 'ridge', 'pass', 'island', 'isle', 'sea', 'lake', 'bay', 'pool', 'harbor', 'shore', 'port', 'beach', 'wave', 'tree', 'bark', 'leaf', 'root', 'bush', 'thorn', 'flower', 'moss', 'vine', 'grass'],
     place: ['town', 'borough', 'village', 'stead', 'hold', 'view', 'keep', 'watch', 'rest', 'run', 'land', 'place', 'realm', 'region', 'road', 'path', 'haven', 'fortress', 'prison', 'citadel', 'stronghold', 'garden'],
     object: ['jewel', 'ship', 'needle', 'bell', 'candle', 'mantle', 'veil', 'fountain'],
@@ -236,20 +244,25 @@ export class Conceptory {
     architecture: ['arch', 'spire', 'gate', 'pillar', 'fountain', 'tower'],
     instrument: ['harp'],
 
+    flower: ['rose', 'lily', 'daisy', 'poppy', 'dandelion'],
+
     town: [ "borough", "town", "village", "stead", "hold", "view", "land", "keep", "watch", "rest", "run", "fast", "field" ],
 
-    forest: [ "wood", "grove", "glade", "glen" ],
+    forest: [
+      "tree", "flower", "wood", "grove", "glade", "glen", "moss", "vine"
+    ],
     lake: [ "lake", "mere", "pool" ],
-    cave: [ "cave", "mouth", "hollow"],
+    cave: [ "cave", "mouth", "hollow", "deep" ],
     swamp: [ "marsh", "fen", "swamp" ],
-    mountain: [ "peak", "ridge", "point", "crest", "fall", "ridge", "pass", "hill", "rock" ],
+    mountain: [ "peak", "ridge", "point", "crest", "fall", "ridge", "pass", "hill" ],
     river: [ "river", "stream", "brook" ],
     island: [ "isle", "island", "bay", "port", "shore", "haven", "beach" ],
-    plains: [ "mead", "field", "vale" ]
+    plains: [ "mead", "field", "vale", "grass" ]
   }
 
   static getConceptsByKind(kind: ConceptKind): Concept[] {
     return this.conceptKinds[kind];
+
   }
 
   static assemble(...kinds: ConceptKind[]): Concept[] {
@@ -260,7 +273,16 @@ export class Conceptory {
       // if (!pick) {
       //   throw new Error(`Failed to pick a concept from kind "${kind}"`);
       // }
-      results = results.concat(pick(choices));
+      if (!choices) {
+        throw new Error(`No concepts available for kind "${kind}"`);
+      }
+      let result = pick(choices);
+      // if result is in turn a concept kind give a 0.5 chance to resolve it again
+      while (this.conceptKinds[result as ConceptKind]) {
+        if (Math.random() > 0.5) break;
+        result = pick(this.getConceptsByKind(result as ConceptKind));
+      }
+      results = results.concat(result);
     }
     return results;
   }
@@ -271,6 +293,8 @@ export class Conceptory {
     'elementAbstract': ['element', 'abstract'],
     'adjectiveAbstract': ['adjective', 'abstract'],
     'adjectiveElement': ['adjective', 'element'],
+    'adjectiveFlower': ['adjective', 'flower'],
+    'adjectiveTree': ['adjective', 'tree']
   }
 
   static townTemplates: { [key: string]: ConceptKind[] } = {
@@ -282,6 +306,11 @@ export class Conceptory {
     "river": ['river', 'town'],
     "island": ['island', 'town'],
     "plains": ['plains', 'town'],
+  }
+
+  static mountainTemplates: { [key: string]: ConceptKind[] } = {
+    "metalMountain": ['metal', 'mountain'],
+    "stoneMountain": ['rock', 'mountain']
   }
 
   // static nobleHouseTemplates: { [key: string]: ConceptKind[] }= {
@@ -310,13 +339,15 @@ export class Conceptory {
       templateSet = this.personalNameTemplates;
     } else if (conceptTemplate === 'townName') {
       templateSet = this.townTemplates;
+    } else if (conceptTemplate === 'mountainName') {
+      templateSet = this.mountainTemplates;
     } else {
       return never(conceptTemplate as never);
     }
     const templateKeys = Object.keys(templateSet);
     const randomKey = templateKeys[Math.floor(Math.random() * templateKeys.length)];
 
-    return this.generateFromTemplate(randomKey, templateSet);
+    return this.generateFromTemplate(randomKey as string, templateSet);
   }
 }
 
@@ -403,7 +434,7 @@ export default class LanguageManager {
     const languages: { [key: string]: Language } = importedLanguages;
 
     for (const key of Object.keys(languages)) {
-      this.registerLanguage(key, languages[key]);
+      this.registerLanguage(key, languages[key] as Language);
     }
   }
 
@@ -439,6 +470,9 @@ export default class LanguageManager {
         } else if (kind === 'town') {
           // use townName template
           const concepts: Concept[] = Conceptory.generate('townName');
+          return { concepts, translation: dict.translate(...concepts) };
+        } else if (kind === 'mountain') {
+          const concepts: Concept[] = Conceptory.generate('mountainName');
           return { concepts, translation: dict.translate(...concepts) };
         } else {
           const concepts: Concept[] = Conceptory.assemble(kind)

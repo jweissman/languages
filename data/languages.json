@@ -296,7 +296,14 @@
       "harp": "earpa",
 
       "moles": "wande",
-      "swallows": "swealwe"
+      "swallows": "swealwe",
+
+      "copper": "copor",
+      "metal": "metal",
+      "flint": "flinte",
+      "marble": "marma",
+      "glass": "glæs",
+      "basalt": "greot"
     },
     "replacements": {
       "ǣ": "ae",
@@ -604,22 +611,29 @@
 
       "harp": "nandë",
       "moles": "noldarë",
-      "swallows": "tuilindo"
+      "swallows": "tuilindo",
+
+      "copper": "rust",
+      "metal": "rhaud",
+      "flint": "sinca",
+      "marble": "alas",
+      "glass": "maril",
+      "basalt": "tarmon"
     },
     "replacements": {
-      "dc": "g",
-      "nc": "g",
-      "db": "v",
       "uwen": "uviel",
-      "ean": "ónë",
-      "nng": "ng",
-      "airt": "írd",
-      "gdor": "gion",
+      "db": "v",
+      "anár": "anor",
       "ôlm": "lór",
       "rineth": "rien",
-      "anár": "anor",
+      "rthon": "rthonion",
       "ler": "l eressëa",
-      "thon": "thonion",
+      "dc": "g",
+      "nc": "g",
+      "nng": "ng",
+      "ean": "ónë",
+      "airt": "írd",
+      "gdor": "gion",
       "loss": "lossë",
       "ered": "ered ",
       "amon": "amon ",
@@ -922,7 +936,14 @@
       "wings": "knafi-yim",
       "winter": "choref-",
       "wolves": "zavim",
-      "wood": "etz"
+      "wood": "etz",
+
+      "copper": "nechos",
+      "metal": "matekhet",
+      "flint": "tzur",
+      "marble": "shemeesh",
+      "glass": "zchuchit",
+      "basalt": "beazelet"
     },
     "replacements": {
     }
@@ -1221,7 +1242,14 @@
       "wings": "alae",
       "winter": "hiems",
       "wolves": "lupus",
-      "wood": "silva"
+      "wood": "silva",
+
+      "copper": "cuprum",
+      "metal": "metallum",
+      "flint": "silex",
+      "marble": "marmoris",
+      "glass": "vitrum",
+      "basalt": "basanites"
     }
   }
 }
