@@ -51,6 +51,18 @@ describe('Language features', () => {
     expect(westron.translate('spirit', 'fire')).toEqual('Arodnesfýr');
   });
 
+  it('should echo concepts in the common tongue', () => {
+    const common = langManager.getDictionary('common');
+
+    expect(common.name).toBe('Common');
+    expect(common.missingConcepts()).toEqual([]);
+    expect(common.translate('port', 'field')).toBe('Portfield');
+    expect(common.translate('gray', 'haven')).toBe('Grayhaven');
+    expect(common.translate('mountain-chain')).toBe('Mountain-chain');
+    expect(common.translate('ever-', 'snow')).toBe('Eversnow');
+    expect(langManager.availableLanguageKeys).toContain('common');
+  });
+
   it('should translate quenya words correctly', () => {
     const quenya = langManager.getDictionary('quenya');
     expect(quenya).not.toBeNull();

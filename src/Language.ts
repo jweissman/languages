@@ -369,7 +369,8 @@ class Dictionary {
   constructor(
     public name: string,
     vocabulary: { [key: string]: string },
-    replacements: { [key: string]: string } = {}
+    replacements: { [key: string]: string } = {},
+    private echoConcepts: boolean = false
   ) {
     this.vocabulary = vocabulary;
     this.replacements = replacements;
@@ -378,6 +379,12 @@ class Dictionary {
   translateDirect(...concepts: Concept[]): string {
     concepts = concepts.flat();
     // console.log(`Dictionary.translateDirect(): concepts=`, concepts);
+    if (this.echoConcepts) {
+      return concepts
+        .map(concept => concept.replace(/^-|-$/g, ''))
+        .join('');
+    }
+
     let translation = concepts.reduce((acc, concept) => {
       if (!(concept in this.vocabulary)) {
         throw new Error(`Concept "${concept}" not found in language "${this.name}"`);
@@ -402,6 +409,8 @@ class Dictionary {
   }
 
   missingConcepts(): Concept[] {
+    if (this.echoConcepts) return [];
+
     const missing: Concept[] = [];
     for (const concept of concepts) {
       if (!(concept in this.vocabulary)) {
@@ -444,6 +453,10 @@ export default class LanguageManager {
   }
 
   getDictionary(key: string): Dictionary {
+    if (key === 'common') {
+      return new Dictionary('Common', {}, {}, true);
+    }
+
     if (!(key in this.languages)) {
       console.warn(`Language "${key}" not found. Falling back to default language "${this.defaultLanguage}".`);
       key = this.defaultLanguage;
@@ -455,7 +468,7 @@ export default class LanguageManager {
   getConceptory(key: string): {
     names: (kind: ConceptKind) => { concepts: Concept[]; translation: string };
   } {
-    if (!(key in this.languages)) {
+    if (key !== 'common' && !(key in this.languages)) {
       console.warn(`Language "${key}" not found. Falling back to default language "${this.defaultLanguage}".`);
       key = this.defaultLanguage;
     }
@@ -487,7 +500,7 @@ export default class LanguageManager {
   }
 
   get availableLanguageKeys(): string[] {
-    return Object.keys(this.languages);
+    return [...Object.keys(this.languages), 'common'];
   }
 
   static _instance: LanguageManager;
